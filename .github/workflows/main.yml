@@ -14,18 +14,21 @@ jobs:
 
       - name: Setup Theos
         run: |
-          bash -c "$(curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos)"
+          # Wir installieren Theos manuell ohne den fehlerhaften SDK-Check
+          git clone --recursive https://github.com/theos/theos.git ~/theos
           echo "THEOS=~/theos" >> $GITHUB_ENV
 
-      - name: Setup iOS SDK
+      - name: Install Manual SDK
         run: |
+          # Hier laden wir das SDK direkt, weil der Theos-Installer gescheitert ist
           mkdir -p ~/theos/sdks
           curl -L https://github.com/theos/sdks/raw/master/iPhoneOS14.5.sdk.tar.xz | tar -xJ -C ~/theos/sdks
+          # Wir brauchen auch ldid zum Signieren der Datei
+          brew install ldid
 
       - name: Compile Executor
         run: |
           export THEOS=~/theos
-          # Wir erzwingen das Bauen für 64-bit iPhones
           make package ARCHS=arm64 FINALPACKAGE=1
 
       - name: Upload Artifact
