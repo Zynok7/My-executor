@@ -10,7 +10,7 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Theos
         run: |
@@ -25,10 +25,11 @@ jobs:
       - name: Compile Executor
         run: |
           export THEOS=~/theos
-          make package FINALPACKAGE=1
+          # Wir erzwingen das Bauen für 64-bit iPhones
+          make package ARCHS=arm64 FINALPACKAGE=1
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: MeinExecutor-Datei
+          name: MeinExecutor-Paket
           path: packages/*.deb
