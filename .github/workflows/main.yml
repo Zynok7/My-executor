@@ -1,0 +1,34 @@
+name: iOS-Executor-Build
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Theos
+        run: |
+          bash -c "$(curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos)"
+          echo "THEOS=~/theos" >> $GITHUB_ENV
+
+      - name: Setup iOS SDK
+        run: |
+          mkdir -p ~/theos/sdks
+          curl -L https://github.com/theos/sdks/raw/master/iPhoneOS14.5.sdk.tar.xz | tar -xJ -C ~/theos/sdks
+
+      - name: Compile Executor
+        run: |
+          export THEOS=~/theos
+          make package FINALPACKAGE=1
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: MeinExecutor-Datei
+          path: packages/*.deb
